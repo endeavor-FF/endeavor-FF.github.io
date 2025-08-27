@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>从策略梯度角度理解强化学习 | Feng feng</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">从策略梯度角度理解强化学习</h1><a id="logo" href="/.">Feng feng</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">从策略梯度角度理解强化学习</h1><div class="post-meta">2025-08-24<span> | </span><span class="category"><a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">强化学习基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vanilla-Policy-Gradient"><span class="toc-number">2.</span> <span class="toc-text">Vanilla Policy Gradient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E8%B5%96%E5%9F%9F%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96-TRPO"><span class="toc-number">3.</span> <span class="toc-text">信赖域策略优化(TRPO)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96-PPO"><span class="toc-number">4.</span> <span class="toc-text">近端策略优化(PPO)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E5%81%8F%E5%A5%BD%E4%BC%98%E5%8C%96-DPO"><span class="toc-number">5.</span> <span class="toc-text">直接偏好优化(DPO)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E7%9B%B8%E5%AF%B9%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96-GRPO"><span class="toc-number">6.</span> <span class="toc-text">组相对策略优化 (GRPO)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E8%80%A6%E5%89%AA%E8%BE%91%E4%B8%8E%E5%8A%A8%E6%80%81%E9%87%87%E6%A0%B7%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96-DAPO"><span class="toc-number">7.</span> <span class="toc-text">解耦剪辑与动态采样策略优化(DAPO)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%91%E7%9D%A3%E5%BE%AE%E8%B0%83-SFT"><span class="toc-number">8.</span> <span class="toc-text">监督微调(SFT)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vanilla-SFT"><span class="toc-number">8.1.</span> <span class="toc-text">Vanilla SFT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7%E5%BE%AE%E8%B0%83-RFT"><span class="toc-number">8.2.</span> <span class="toc-text">拒绝采样微调(RFT)</span></a></li></ol></li></ol></div></div><div class="post-content"><h2 id="强化学习基本概念"><a href="#强化学习基本概念" class="headerlink" title="强化学习基本概念"></a>强化学习基本概念</h2><p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=OTg3OGY1NmJiNzBjYTk4MTdlZjNhOWRmNDc5Y2YyOWZfTVY1RXNZQ1JLYURHcnpmWWRYZ0pEb1V6azJCT3NQeTlfVG9rZW46Ym94azRVUjdWejFCdDRzSDdPa1ZkMzVCNEljXzE3NTYwNDA4NTg6MTc1NjA0NDQ1OF9WNA"></p>
+<ul>
+<li><p><strong>Agent<strong><strong>智能体</strong></strong>与环境</strong></p>
+</li>
+<li><p>*<em>状态：<strong><strong>Agent</strong></strong>在环境中某一时刻的描述</em>*$$S&#x3D; {s_1,s_2,…,s_t}$$</p>
+</li>
+<li><p><strong>动作：Agent在某一状态$s_t$$下可以采取的决策</strong>$$A_{s_t}&#x3D;{a_1,a_2,…,a_n}$$</p>
+</li>
+<li><p><strong>策略：指示<strong><strong>Agent</strong></strong>在状态</strong>$$s_t$$<strong>下作出哪种动作</strong>$$a_t$$<strong>，策略是条件概率</strong>$$\pi_\theta (a_t|s_t) &#x3D; P(A&#x3D;a_t|S&#x3D;s_t) $$</p>
+</li>
+<li><p><strong>奖励：一个标量反馈信号，表示<strong><strong>Agent</strong></strong>在某个状态</strong>$$s_t$$<strong>下执行一个动作后</strong>$$a$$<strong>，环境给出的即时评价</strong>$$r_t$$<strong>。</strong></p>
+</li>
+<li><p><strong>轨迹：从某一状态</strong>$$s_0$$<strong>开始，到结束的一系列状态、动作、奖励的序列</strong>$$\tau$$$$\tau &#x3D; {(s_0,a_0,r_0),(s_1,a_1,r_1),…,(s_t,a_t,r_t)}$$</p>
+</li>
+</ul>
+<h2 id="Vanilla-Policy-Gradient"><a href="#Vanilla-Policy-Gradient" class="headerlink" title="Vanilla Policy Gradient"></a>Vanilla Policy Gradient</h2><ul>
+<li><p>目标：Agent学会一个最优策略$$\pi$$，使其在与环境交互时能够获得<strong>累积奖励期望</strong>最大化。</p>
+<ul>
+<li>目标函数：在当前策略$$\pi_\theta$$下，所有<strong>轨迹期望的总奖励</strong>。$$R(\tau) &#x3D; \sum_{t&#x3D;0}^{T}R(s_t,a_t)$$表示轨迹总奖励。</li>
+</ul>
+</li>
+</ul>
+<p>$$\mathbb{}$$</p>
+<p>$$J(\theta) &#x3D; \mathbb{E}<em>{\tau\sim\pi</em>{\theta}}[R(\tau)]$$</p>
+<ul>
+<li>展开成求和形式，并对策略参数$$\theta$$求导：</li>
+</ul>
+<p>$$J(\theta) &#x3D; \sum_{\tau}P(\tau;\theta)R(\tau) $$</p>
+<p>$$\nabla_\theta J(\theta) &#x3D; \sum_\tau (\nabla_\theta P(\tau;\theta)R(\tau))$$</p>
+<ul>
+<li>由$$f’&#x3D;f\cdot(\log(f))’$$得：</li>
+</ul>
+<p>$$\nabla_\theta J(\theta) &#x3D; \sum_\tau P(\tau;\theta)\nabla_\theta\log (P(\tau;\theta))R(\tau)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[\nabla_\theta \log(P(\tau;\theta))R(\tau)]$$</p>
+<ul>
+<li>因$$P(\tau;\theta)&#x3D;\rho\prod_{t&#x3D;0}^{T}\pi_\theta(a_t|s_t)$$得<strong>策略梯度定理</strong>：</li>
+</ul>
+<p>$$\nabla_\theta J(\theta)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[(\sum_{t&#x3D;0}^{T}\nabla_\theta\log\pi_\theta(a_t|s_t))R(\tau)]$$</p>
+<ul>
+<li>Tip1：$$R(\tau)$$在实际环境中离散且方差大，替换成<strong>优势函数，其中</strong>$$V^\pi(a)$$充当baseline，中心化，解决高方差。</li>
+</ul>
+<p>$$A^\pi(s,a)&#x3D;Q^\pi(s,a)-V^\pi(s)$$</p>
+<ul>
+<li><p>按照对于$$A^\pi(s,a)$$的估计，可将VPG分为三类：</p>
+<ul>
+<li><p>蒙特卡洛采样：$$R(\tau)$$是对$$Q^\pi(s,a)$$的无偏估计。（方差相对大）</p>
+</li>
+<li><p>TD error：利用贝尔曼公式导出 — &gt;&gt;&gt; $$r_t + \gamma V(s_{t+1}) - V(s_t)$$，单步估计$$\hat{A}$$。（偏差相对大）</p>
+</li>
+<li><p>GAE 广义优势估计：TD error的加权平均，泛化估计$$\hat{A}$$。（偏差和方差的trade off）</p>
+</li>
+</ul>
+</li>
+<li><p>Tip2：重要性采样$$\mathbb{E}<em>{\tau\sim p}[R(\tau)] &#x3D; \mathbb{E}</em>{\tau\sim q}[\frac{p(\tau;\theta)}{q(\tau;\theta)}R(\tau)]$$，解决数据利用率。</p>
+<ul>
+<li><p>使用当前策略进行采样（生成多个tokens序列）轨迹，计算优势及策略梯度更新策略，数据只使用一次❌</p>
+</li>
+<li><p>使用旧策略生成数据，更新新策略，数据可以反复利用✅</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\nabla_\theta \log \pi_\theta(a_t|s_t)\cdot\hat{A_t}]$$</p>
+<p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=Y2IzMjE2ZWNjYWUyYTIzNzNhMjQ0Zjc1NGQyYzEzMmFfOWxJVzI1UXhYalZYaDY4d3lRNFl0Qkx4Tlk1eDl4NHNfVG9rZW46Ym94azRkRFY2WUczMWFzRk5pd2h4VG51V1JpXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<h2 id="信赖域策略优化-TRPO"><a href="#信赖域策略优化-TRPO" class="headerlink" title="信赖域策略优化(TRPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1502.05477">信赖域策略优化(TRPO)</a></h2><p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=ZmM1MjY2MGE5MTUzM2IzNzhmZGQzNTY3MzM2NGZlNGFfRU5hRElpRE93YmxXNEVNZGs0UUhoYVZJZFAxdkQzaWpfVG9rZW46Ym94azRhd0I1OEgyS3Vjd1JZOGNWZE03ZXVlXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=OTU1N2Y5YzVjNmI3OTlhMTg5ZjQyMDNkMzM5OTFmMjBfWlQyZXhYVGFyOFpjdUNGeGdNbEpHZnI3OEh4RmQyckVfVG9rZW46Ym94azROQ2RGN3R6NnROZE1UU3M4RHBRU1BkXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>策略梯度定理会直接提升期望回报，但梯度更新时存在<strong>问题</strong>：</p>
+<ul>
+<li><p>新策略更新后与旧策略差异过大，导致新策略使用“错误的样本”再优化。</p>
+<ul>
+<li><p>e.g. 新策略存在一个大的更新，导致后续step或epoch的数据跟随新策略产生路径，这条新(错误)路径对于学习毫无意义，且恢复到原始状态很难。我们希望模型step by step的学习路径中的经验，不要“大迈步”。</p>
+</li>
+<li><p>奖励爆炸：模型偶然探索到高回报路径，从而过拟合。</p>
+</li>
+<li><p>奖励坍塌：只选择一些策略，错过更优策略。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>解决方法：</p>
+<ul>
+<li><p>限制策略模型参数更新幅度，原始论文中$$\delta \leq 0.01$$</p>
+<ul>
+<li>引入KL散度</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\underbrace{\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\cdot\hat{A_t}}<em>{梯度系数}\underbrace{\nabla</em>\theta \log \pi_\theta(a_t|s_t)}_{策略梯度}]$$</p>
+<p>$$\downarrow$$</p>
+<p>$$s.t.\mathbb{E}<em>{s\sim\pi</em>{old}}[D_{KL}(\pi_{old}(\cdot|s)||\pi_\theta(\cdot|s))]\leq \delta$$</p>
+<blockquote>
+<p><strong>TRPO 用 KL 散度构造**<strong>信赖域</strong></strong>，限制策略更新步长，从根本上解决了策略梯度方法不稳定的问题。**</p>
+</blockquote>
+<h2 id="近端策略优化-PPO"><a href="#近端策略优化-PPO" class="headerlink" title="近端策略优化(PPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1707.06347">近端策略优化(PPO)</a></h2><ul>
+<li><p>问题：</p>
+<ul>
+<li><p>TRPO优化困难（带约束的二次规划）</p>
+</li>
+<li><p>不能直接用Adam、SGD等优化器，因为优化过程不是简单的梯度下降。</p>
+</li>
+</ul>
+</li>
+<li><p>解决方法——也是需要在限制“大迈步”上考虑：</p>
+<ul>
+<li><p>PPO-Penalty：将KL散度放在目标函数中进行优化，避免额外复制运算（软约束）。</p>
+<ul>
+<li>$$\arg\max\mathbb{E}<em>{s\sim\nu^{\pi</em>{\theta_k}}}\mathbb{E}<em>{a\sim\pi</em>{\theta_k}(\cdot|s)}\left[\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a)-\beta D_{KL}[\pi_{\theta_k}(\cdot|s),\pi_\theta(\cdot|s)]\right]$$</li>
+</ul>
+</li>
+<li><p>PPO-Clip：</p>
+<p>  <img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=Njk1MGZkMzQ3ZDBiOTlkMDU1YTdmOWI2ODQyMGUyNzRfQ3F5RDRjemZzTGdOMW1yME5DYkd3aGtRb1FIZ2s2bGtfVG9rZW46Ym94azRZY210enN0bHA4Yk9jdU9HRHZzbXFOXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>$$\arg\max\mathbb{E}<em>{s\sim\nu}\mathbb{E}</em>{a\sim\pi_{\theta_k}(\cdot|s)}\left[\min\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a),\mathrm{clip}\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)},1-\epsilon,1+\epsilon\right)A^{\pi_{\theta_k}}(s,a)\right)\right]$$</p>
+</li>
+<li><p>本质是把原来的A 约束到$$(1-\epsilon,1+\epsilon)$$。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="直接偏好优化-DPO"><a href="#直接偏好优化-DPO" class="headerlink" title="直接偏好优化(DPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.18290">直接偏好优化(DPO)</a></h2><p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=ZjY4ZmI0MjM3OWFhNzc1M2IzZmZhZDhmNDQ5NzU4ZTFfSnNzSHM4a2p1eHQ5bkl3RDAyd2lZUXc0RGFpMklucFhfVG9rZW46Ym94azRLejVOWnNjMlo0ZlI5NE5WMXpDT3piXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>问题：传统的RLHF三步走：</p>
+<ul>
+<li><p>收集人类偏好数据(chosen vs rejected)；</p>
+</li>
+<li><p>训练一个奖励模型 r(x, y)，使得 r(chosen) &gt; r(rejected)；</p>
+</li>
+<li><p>用该奖励模型通过PPO等方法微调大模型。</p>
+</li>
+</ul>
+</li>
+<li><p>奖励模型是一个代理，其拟合人类偏好不一定精准。</p>
+</li>
+<li><p>奖励模型+策略优化两个阶段，复杂不稳定。</p>
+</li>
+<li><p>解决思路：隐式建模人类偏好，避免中间代理模型的误差。$$(x,y_{wining},y_{losing})$$</p>
+</li>
+</ul>
+<p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=YmVjMWJjNTY4OTIxZDdiYWMxODczNzQ1NzAxMzliMzNfS1hNQ0NNYzU0QUQ5RTR2OFhMMzduNVVURFBTWWdQOENfVG9rZW46Ym94azRXZnA5dTdMVW94ZEl1UnBLYnRzNXFkXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>目标函数：$$\max_{\pi_\theta}\mathbb{E}<em>{y\sim\pi</em>\theta(y|x)}[r(x,y)]-\beta D_{KL}(\pi_\theta(\cdot|x)||\pi_\mathrm{ref}(\cdot|x))$$</p>
+<ul>
+<li><p>存在封闭解：$$\pi_r^*(y|x)&#x3D;\frac{1}{Z(x)}\pi_\mathrm{ref}(y|x)\exp\left(\frac{1}{\beta}r(x,y)\right)$$</p>
+</li>
+<li><p>代回得到：$$r(x,y)&#x3D;\beta\log\left(\frac{\pi_r^*(y|x)}{\pi_\mathrm{ref}(y|x)}\right)+\beta\log(Z(x))$$</p>
+</li>
+<li><p>使用Bradley-Terry 模型估计人类偏好：$$p^<em>(y_w\succ y_l|x)&#x3D;\sigma(r^</em>(x,y_w)-r^*(x,y_l))$$</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$p(y_w\succ y_l|x)&#x3D;\sigma\left(\beta\log\frac{\pi_\theta(y_w|x)}{\pi_\mathrm{ref}(y_w|x)}-\beta\log\frac{\pi_\theta(y_l|x)}{\pi_\mathrm{ref}(y_l|x)}\right)$$</p>
+<ul>
+<li><p>找出一组策略参数$$\theta$$使得最大化概率。</p>
+</li>
+<li><p>损失函数（负对数似然）：</p>
+</li>
+</ul>
+<p>$$\mathcal{L}<em>{\text{DPO}} &#x3D; - \mathbb{E}</em>{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right]$$</p>
+<ul>
+<li>梯度下降，损失函数梯度：</li>
+</ul>
+<p>$$\nabla_\theta\mathcal{L}<em>{\mathrm{DPO}}&#x3D;\underbrace{\sigma(\beta \log\frac{\pi</em>\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)})}<em>{梯度系数}\underbrace{[\nabla</em>\theta\log\pi_\theta(y_w|x)-\nabla_\theta\log\pi_\theta(y_l|x)]}_{梯度}$$</p>
+<h2 id="组相对策略优化-GRPO"><a href="#组相对策略优化-GRPO" class="headerlink" title="组相对策略优化 (GRPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2402.03300">组相对策略优化 (GRPO)</a></h2><p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=ZWVkMTY3YWYzYTRmNDk1NTkxYWMwMmU0NzFkMzIyNjNfOUpsYTM4Y1FXbk14SXFxVjkwZFM4Y21kaGtteUtsNkFfVG9rZW46Ym94azRHV1dsZTA1bGkwQzhCQmFoVkRtQ1RvXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>问题：</p>
+<ul>
+<li><p>DPO的局限性在于“优势”从数据对中估计，而非“组”的概念，导致信息损失。</p>
+</li>
+<li><p>PPO的训练设计到四个模型，复杂且难以优化。</p>
+</li>
+</ul>
+</li>
+<li><p>思路：丢掉critic model，拿多个采样输出的平均奖励作为baseline。</p>
+<ul>
+<li><p>对于每个问题，通过旧策略模型$$\pi_{old}$$采样一组输出$${o_{1},o_{2},\cdots,o_{G}}$$</p>
+</li>
+<li><p>对于每个输出，通过奖励模型得到打分$$\mathbf{r}&#x3D;{r_{1},r_{2},\cdots,r_{G}}$$</p>
+</li>
+<li><p>对于一组奖励，减去均值，除以标准差以标准化每一序列的打分，并将这些打分相等地分给序列中的所有token，$$\hat{A}<em>{i,t}&#x3D;\tilde{r}</em>{i}&#x3D;\frac{r_{i}-\mathrm{mean}(\mathbf{r})}{\mathrm{std}(\mathbf{r})}$$。</p>
+</li>
+</ul>
+</li>
+<li><p>目标函数：</p>
+</li>
+</ul>
+<p>$$\begin{aligned} \mathcal{J}<em>{GRPO}(\theta) &amp; &#x3D;\mathbb{E}[q\sim P(Q),{o_i}</em>{i&#x3D;1}^G\sim\pi_{\theta_{old}}(O|q)] \ &amp; \frac{1}{G}\sum_{i&#x3D;1}^G\frac{1}{|o_i|}\sum_{t&#x3D;1}^{|o_i|}\left{\min\left[\frac{\pi_\theta(o_{i,t}|q,o_{i,</p>
+<ul>
+<li>估计KL散度：</li>
+</ul>
+<p>$$\mathbb{D}<em>{KL}\left[\pi</em>{\theta}||\pi_{ref}\right]&#x3D;\frac{\pi_{ref}(o_{i,t}|q,o_{i,</p>
+<ul>
+<li>策略梯度：</li>
+</ul>
+<p>$$\begin{aligned} \nabla_\theta\mathcal{J}<em>{GRPO}(\theta) &amp; &#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),{o_i}<em>{i&#x3D;1}^G\sim\pi</em>{\theta_{old}}(O|q)] \ &amp; \frac{1}{G}\sum_{i&#x3D;1}^G\frac{1}{|o_i|}\sum_{t&#x3D;1}^{|o_i|}\underbrace{\left[\frac{\pi_{\theta}(o_{i,t}|o_{i,</p>
+<p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=ZWMzOTdlZTdmMWVkYWQ2YTk4ZDc0N2Q2NWI3Yjc3NTNfYmV4TzFyR3FpZGVxWEZCSTh0b2EyUHhVU1hWQndqWm1fVG9rZW46Ym94azRCR1hqbmRwSTRlWFFONFd6SUdoRmNUXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<h2 id="解耦剪辑与动态采样策略优化-DAPO"><a href="#解耦剪辑与动态采样策略优化-DAPO" class="headerlink" title="解耦剪辑与动态采样策略优化(DAPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.14476">解耦剪辑与动态采样策略优化(DAPO)</a></h2><p><img src="https://xiaomi.f.mioffice.cn/space/api/box/stream/download/asynccode/?code=MGU1ZDNjMjNlODRlMGJjMDg4MzBiNWI5ZWE0M2ExZmVfcXJxczRRVzRhT2V0REdnbjFndlBBWHcyMGdMQmM2TmJfVG9rZW46Ym94azRLazZneW5JaEk4cXVrTVBMY1M5eVJiXzE3NTYwNDA4ODU6MTc1NjA0NDQ4NV9WNA"></p>
+<ul>
+<li><p>问题：</p>
+<ul>
+<li><p>GRPO的样本级的损失计算，无论样本序列长短在损失计算中分配相同权重。较长的序列，每个token对于loss的贡献变低，导致无法<strong>有效惩罚冗长、无意义的长COT思考，模型倾向短输出。</strong></p>
+</li>
+<li><p>GRPO在优化时，采样到准确性为1的样本时，容易导致梯度下降。</p>
+</li>
+<li><p>PPO等算法在优化过程中，容易出现熵坍塌的现象。</p>
+</li>
+</ul>
+</li>
+<li><p>目标函数：</p>
+</li>
+</ul>
+<p>$$\begin{aligned} \mathcal{J}<em>{\mathrm{DAPO}}(\theta) &amp; \begin{array} {rcl}&#x3D; &amp; \mathbb{E}</em>{(q,a)\thicksim\mathcal{D},{o_i}<em>{i&#x3D;1}^G\thicksim\pi</em>{\theta_{\mathrm{old}}}(\cdot|q)} \end{array} \ &amp; \left[\frac{1}{\sum_{i&#x3D;1}^G|o_i|}\sum_{i&#x3D;1}^G\sum_{t&#x3D;1}^{|o_i|}\min\left(r_{i,t}(\theta)\hat{A}<em>{i,t},\mathrm{~clip}{\left(r</em>{i,t}(\theta),1-\varepsilon_{\mathrm{low}},1+\varepsilon_{\mathrm{high}}\right)}\hat{A}_{i,t}\right)\right] \ \mathrm{s.t.}0&lt;\left|{o_i\mid\text{is equivalent}(a,o_i)}\right|</p>
+<ul>
+<li><p>Token粒度的计算损失。</p>
+</li>
+<li><p>过滤掉准确性为0，1的样本不参与学习。</p>
+</li>
+<li><p>提高$$\epsilon_{high}$$的值（大多数0.2），让模型在信赖域中探索多一些，有助于生成更多样性的样本。</p>
+</li>
+<li><p>消除KL，在训练long-CoT推理模型的过程中，模型分布可能会与初始模型显著偏离，因此这种限制是不必要的。</p>
+</li>
+<li><p>策略梯度：同PPO-clip</p>
+</li>
+</ul>
+<h2 id="监督微调-SFT"><a href="#监督微调-SFT" class="headerlink" title="监督微调(SFT)"></a>监督微调(SFT)</h2><h3 id="Vanilla-SFT"><a href="#Vanilla-SFT" class="headerlink" title="Vanilla SFT"></a>Vanilla SFT</h3><ul>
+<li><p>目标函数：$$\mathcal{J}<em>{SFT}(\theta)&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\log\pi_\theta(o_t|q,o_{</p>
+</li>
+<li><p>梯度上升：$$\nabla_\theta\mathcal{J}<em>{SFT}&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\nabla_\theta\log\pi_\theta(o_t|q,o_{</p>
+</li>
+</ul>
+<h3 id="拒绝采样微调-RFT"><a href="#拒绝采样微调-RFT" class="headerlink" title="拒绝采样微调(RFT)"></a>拒绝采样微调(RFT)</h3><ul>
+<li><p>目标函数：$$\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\mathbb{I}(o)\log\pi_\theta(o_t|q,o_{</p>
+</li>
+<li><p>梯度上升：</p>
+</li>
+</ul>
+<p>$$\nabla_\theta\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(\mathbb{Q}),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\mathbb{I}(o)}<em>{梯度系数}\underbrace{\nabla</em>\theta\log\pi_\theta(o_t|q,o_{</p>
+<p>$$\mathrm{I}(o)&#x3D; \begin{cases} 1 &amp; \text{the answer of o is correct} \ 0 &amp; \text{the answer of o is incorrect} &amp; &amp; \end{cases}$$</p>
+</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">强化学习</a></li></ul></div><div class="post-nav"><a class="next" href="/2025/08/24/hello-world/">Hello World</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="关于"><img class="nofancybox" src="/img/logo_me.png"/></a><p>Measured gets improved.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2025/08/24/%E4%BB%8E%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">从策略梯度角度理解强化学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/08/24/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2025 <a href="/." rel="nofollow">Feng feng.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="复制成功！"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
