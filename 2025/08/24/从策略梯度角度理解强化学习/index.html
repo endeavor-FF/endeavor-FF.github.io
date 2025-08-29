@@ -13,42 +13,42 @@
 </li>
 </ul>
 <h2 id="Vanilla-Policy-Gradient"><a href="#Vanilla-Policy-Gradient" class="headerlink" title="Vanilla Policy Gradient"></a>Vanilla Policy Gradient</h2><ul>
-<li><p>目标：Agent学会一个最优策略$$\pi$$，使其在与环境交互时能够获得<strong>累积奖励期望</strong>最大化。</p>
+<li><p>目标：Agent学会一个最优策略$\pi$，使其在与环境交互时能够获得<strong>累积奖励期望</strong>最大化。</p>
 <ul>
-<li>目标函数：在当前策略$$\pi_\theta$$下，所有<strong>轨迹期望的总奖励</strong>。$$R(\tau) &#x3D; \sum_{t&#x3D;0}^{T}R(s_t,a_t)$$表示轨迹总奖励。</li>
+<li>目标函数：在当前策略$\pi_\theta$下，所有<strong>轨迹期望的总奖励</strong>。$R(\tau) &#x3D; \sum_{t&#x3D;0}^{T}R(s_t,a_t)$表示轨迹总奖励。</li>
 </ul>
-<p>  $$<br>  J(\theta) &#x3D; \mathbb{E}<em>{\tau\sim\pi</em>{\theta}}[R(\tau)]<br>  $$</p>
+<p>  $J(\theta) &#x3D; \mathbb{E}<em>{\tau\sim\pi</em>{\theta}}[R(\tau)]$</p>
 <ul>
-<li>展开成求和形式，并对策略参数$$\theta$$求导：</li>
+<li>展开成求和形式，并对策略参数$\theta$求导：</li>
 </ul>
-<p>  $$<br>  J(\theta) &#x3D; \sum_{\tau}P(\tau;\theta)R(\tau)<br>  $$</p>
+<p>  $J(\theta) &#x3D; \sum_{\tau}P(\tau;\theta)R(\tau)$</p>
 </li>
 </ul>
-<p>$$<br>\nabla_\theta J(\theta) &#x3D; \sum_\tau (\nabla_\theta P(\tau;\theta)R(\tau))<br>$$</p>
+<p>$\nabla_\theta J(\theta) &#x3D; \sum_\tau (\nabla_\theta P(\tau;\theta)R(\tau))$</p>
 <ul>
-<li>由$$f’&#x3D;f\cdot(\log(f))’$$得：</li>
+<li>由$f’&#x3D;f\cdot(\log(f))’$得：</li>
 </ul>
-<p>$$<br>\nabla_\theta J(\theta) &#x3D; \sum_\tau P(\tau;\theta)\nabla_\theta\log (P(\tau;\theta))R(\tau)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[\nabla_\theta \log(P(\tau;\theta))R(\tau)]<br>$$</p>
+<p>$\nabla_\theta J(\theta) &#x3D; \sum_\tau P(\tau;\theta)\nabla_\theta\log (P(\tau;\theta))R(\tau)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[\nabla_\theta \log(P(\tau;\theta))R(\tau)]$</p>
 <ul>
-<li>因$$P(\tau;\theta)&#x3D;\rho\prod_{t&#x3D;0}^{T}\pi_\theta(a_t|s_t)$$得<strong>策略梯度定理</strong>：</li>
+<li>因$P(\tau;\theta)&#x3D;\rho\prod_{t&#x3D;0}^{T}\pi_\theta(a_t|s_t)$得<strong>策略梯度定理</strong>：</li>
 </ul>
-<p>$$<br>\nabla_\theta J(\theta)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[(\sum_{t&#x3D;0}^{T}\nabla_\theta\log\pi_\theta(a_t|s_t))R(\tau)]<br>$$</p>
+<p>$\nabla_\theta J(\theta)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[(\sum_{t&#x3D;0}^{T}\nabla_\theta\log\pi_\theta(a_t|s_t))R(\tau)]$</p>
 <ul>
-<li>Tip1：$$R(\tau)$$在实际环境中离散且方差大，替换成<strong>优势函数，其中</strong>$$V^\pi(a)$$充当baseline，中心化，解决高方差。</li>
+<li>Tip1：$R(\tau)$在实际环境中离散且方差大，替换成<strong>优势函数，其中</strong>$V^\pi(a)$充当baseline，中心化，解决高方差。</li>
 </ul>
-<p>$$A^\pi(s,a)&#x3D;Q^\pi(s,a)-V^\pi(s)$$</p>
+<p>$A^\pi(s,a)&#x3D;Q^\pi(s,a)-V^\pi(s)$</p>
 <ul>
-<li><p>按照对于$$A^\pi(s,a)$$的估计，可将VPG分为三类：</p>
+<li><p>按照对于$A^\pi(s,a)$的估计，可将VPG分为三类：</p>
 <ul>
-<li><p>蒙特卡洛采样：$$R(\tau)$$是对$$Q^\pi(s,a)$$的无偏估计。（方差相对大）</p>
+<li><p>蒙特卡洛采样：$R(\tau)$是对$Q^\pi(s,a)$的无偏估计。（方差相对大）</p>
 </li>
-<li><p>TD error：利用贝尔曼公式导出 — &gt;&gt;&gt; $$r_t + \gamma V(s_{t+1}) - V(s_t)$$，单步估计$$\hat{A}$$。（偏差相对大）</p>
+<li><p>TD error：利用贝尔曼公式导出 — &gt;&gt;&gt; $r_t + \gamma V(s_{t+1}) - V(s_t)$，单步估计$\hat{A}$。（偏差相对大）</p>
 </li>
-<li><p>GAE 广义优势估计：TD error的加权平均，泛化估计$$\hat{A}$$。（偏差和方差的trade off）</p>
+<li><p>GAE 广义优势估计：TD error的加权平均，泛化估计$\hat{A}$。（偏差和方差的trade off）</p>
 </li>
 </ul>
 </li>
-<li><p>Tip2：重要性采样$$\mathbb{E}<em>{\tau\sim p}[R(\tau)] &#x3D; \mathbb{E}</em>{\tau\sim q}[\frac{p(\tau;\theta)}{q(\tau;\theta)}R(\tau)]$$，解决数据利用率。</p>
+<li><p>Tip2：重要性采样$\mathbb{E}<em>{\tau\sim p}[R(\tau)] &#x3D; \mathbb{E}</em>{\tau\sim q}[\frac{p(\tau;\theta)}{q(\tau;\theta)}R(\tau)]$，解决数据利用率。</p>
 <ul>
 <li><p>使用当前策略进行采样（生成多个tokens序列）轨迹，计算优势及策略梯度更新策略，数据只使用一次❌</p>
 </li>
@@ -57,7 +57,7 @@
 </ul>
 </li>
 </ul>
-<p>$$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\nabla_\theta \log \pi_\theta(a_t|s_t)\cdot\hat{A_t}]$$</p>
+<p>$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\nabla_\theta \log \pi_\theta(a_t|s_t)\cdot\hat{A_t}]$</p>
 <h2 id="信赖域策略优化-TRPO"><a href="#信赖域策略优化-TRPO" class="headerlink" title="信赖域策略优化(TRPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1502.05477">信赖域策略优化(TRPO)</a></h2><ul>
 <li><p>策略梯度定理会直接提升期望回报，但梯度更新时存在<strong>问题</strong>：</p>
 <ul>
@@ -75,7 +75,7 @@
 </li>
 <li><p>解决方法：</p>
 <ul>
-<li><p>限制策略模型参数更新幅度，原始论文中$$\delta \leq 0.01$$</p>
+<li><p>限制策略模型参数更新幅度，原始论文中$\delta \leq 0.01$</p>
 <ul>
 <li>引入KL散度</li>
 </ul>
@@ -83,9 +83,9 @@
 </ul>
 </li>
 </ul>
-<p>$$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\underbrace{\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\cdot\hat{A_t}}<em>{梯度系数}\underbrace{\nabla</em>\theta \log \pi_\theta(a_t|s_t)}_{策略梯度}]$$</p>
-<p>$$\downarrow$$</p>
-<p>$$s.t.\mathbb{E}<em>{s\sim\pi</em>{old}}[D_{KL}(\pi_{old}(\cdot|s)||\pi_\theta(\cdot|s))]\leq \delta$$</p>
+<p>$\nabla J(\theta) \approx \mathbb{E}<em>{\tau\sim\pi</em>{\theta_{old}}}[\underbrace{\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\cdot\hat{A_t}}<em>{梯度系数}\underbrace{\nabla</em>\theta \log \pi_\theta(a_t|s_t)}_{策略梯度}]$</p>
+<p>$\downarrow$</p>
+<p>$s.t.\mathbb{E}<em>{s\sim\pi</em>{old}}[D_{KL}(\pi_{old}(\cdot|s)||\pi_\theta(\cdot|s))]\leq \delta$</p>
 <blockquote>
 <p><strong>TRPO 用 KL 散度构造**<strong>信赖域</strong></strong>，限制策略更新步长，从根本上解决了策略梯度方法不稳定的问题。**</p>
 </blockquote>
@@ -102,14 +102,14 @@
 <ul>
 <li><p>PPO-Penalty：将KL散度放在目标函数中进行优化，避免额外复制运算（软约束）。</p>
 <ul>
-<li>$$\arg\max\mathbb{E}<em>{s\sim\nu^{\pi</em>{\theta_k}}}\mathbb{E}<em>{a\sim\pi</em>{\theta_k}(\cdot|s)}\left[\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a)-\beta D_{KL}[\pi_{\theta_k}(\cdot|s),\pi_\theta(\cdot|s)]\right]$$</li>
+<li>$\arg\max\mathbb{E}<em>{s\sim\nu^{\pi</em>{\theta_k}}}\mathbb{E}<em>{a\sim\pi</em>{\theta_k}(\cdot|s)}\left[\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a)-\beta D_{KL}[\pi_{\theta_k}(\cdot|s),\pi_\theta(\cdot|s)]\right]$</li>
 </ul>
 </li>
 <li><p>PPO-Clip：</p>
 <ul>
-<li><p>$$\arg\max\mathbb{E}<em>{s\sim\nu}\mathbb{E}</em>{a\sim\pi_{\theta_k}(\cdot|s)}\left[\min\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a),\mathrm{clip}\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)},1-\epsilon,1+\epsilon\right)A^{\pi_{\theta_k}}(s,a)\right)\right]$$</p>
+<li><p>$\arg\max\mathbb{E}<em>{s\sim\nu}\mathbb{E}</em>{a\sim\pi_{\theta_k}(\cdot|s)}\left[\min\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}A^{\pi_{\theta_k}}(s,a),\mathrm{clip}\left(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)},1-\epsilon,1+\epsilon\right)A^{\pi_{\theta_k}}(s,a)\right)\right]$</p>
 </li>
-<li><p>本质是把原来的A 约束到$$(1-\epsilon,1+\epsilon)$$。</p>
+<li><p>本质是把原来的A 约束到$(1-\epsilon,1+\epsilon)$。</p>
 </li>
 </ul>
 </li>
@@ -131,31 +131,31 @@
 </li>
 <li><p>奖励模型+策略优化两个阶段，复杂不稳定。</p>
 </li>
-<li><p>解决思路：隐式建模人类偏好，避免中间代理模型的误差。$$(x,y_{wining},y_{losing})$$</p>
+<li><p>解决思路：隐式建模人类偏好，避免中间代理模型的误差。$(x,y_{wining},y_{losing})$</p>
 </li>
-<li><p>目标函数：$$\max_{\pi_\theta}\mathbb{E}<em>{y\sim\pi</em>\theta(y|x)}[r(x,y)]-\beta D_{KL}(\pi_\theta(\cdot|x)||\pi_\mathrm{ref}(\cdot|x))$$</p>
+<li><p>目标函数：$\max_{\pi_\theta}\mathbb{E}<em>{y\sim\pi</em>\theta(y|x)}[r(x,y)]-\beta D_{KL}(\pi_\theta(\cdot|x)||\pi_\mathrm{ref}(\cdot|x))$</p>
 <ul>
-<li><p>存在封闭解：$$\pi_r^*(y|x)&#x3D;\frac{1}{Z(x)}\pi_\mathrm{ref}(y|x)\exp\left(\frac{1}{\beta}r(x,y)\right)$$</p>
+<li><p>存在封闭解：$\pi_r^*(y|x)&#x3D;\frac{1}{Z(x)}\pi_\mathrm{ref}(y|x)\exp\left(\frac{1}{\beta}r(x,y)\right)$</p>
 </li>
-<li><p>代回得到：$$r(x,y)&#x3D;\beta\log\left(\frac{\pi_r^*(y|x)}{\pi_\mathrm{ref}(y|x)}\right)+\beta\log(Z(x))$$</p>
+<li><p>代回得到：$r(x,y)&#x3D;\beta\log\left(\frac{\pi_r^*(y|x)}{\pi_\mathrm{ref}(y|x)}\right)+\beta\log(Z(x))$</p>
 </li>
-<li><p>使用Bradley-Terry 模型估计人类偏好：$$p^<em>(y_w\succ y_l|x)&#x3D;\sigma(r^</em>(x,y_w)-r^*(x,y_l))$$</p>
+<li><p>使用Bradley-Terry 模型估计人类偏好：$p^<em>(y_w\succ y_l|x)&#x3D;\sigma(r^</em>(x,y_w)-r^*(x,y_l))$</p>
 </li>
 </ul>
 </li>
 </ul>
-<p>$$p(y_w\succ y_l|x)&#x3D;\sigma\left(\beta\log\frac{\pi_\theta(y_w|x)}{\pi_\mathrm{ref}(y_w|x)}-\beta\log\frac{\pi_\theta(y_l|x)}{\pi_\mathrm{ref}(y_l|x)}\right)$$</p>
+<p>$p(y_w\succ y_l|x)&#x3D;\sigma\left(\beta\log\frac{\pi_\theta(y_w|x)}{\pi_\mathrm{ref}(y_w|x)}-\beta\log\frac{\pi_\theta(y_l|x)}{\pi_\mathrm{ref}(y_l|x)}\right)$</p>
 <ul>
-<li><p>找出一组策略参数$$\theta$$使得最大化概率。</p>
+<li><p>找出一组策略参数$\theta$使得最大化概率。</p>
 </li>
 <li><p>损失函数（负对数似然）：</p>
 </li>
 </ul>
-<p>$$\mathcal{L}<em>{\text{DPO}} &#x3D; - \mathbb{E}</em>{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right]$$</p>
+<p>$\mathcal{L}<em>{\text{DPO}} &#x3D; - \mathbb{E}</em>{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right]$</p>
 <ul>
 <li>梯度下降，损失函数梯度：</li>
 </ul>
-<p>$$\nabla_\theta\mathcal{L}<em>{\mathrm{DPO}}&#x3D;\underbrace{\sigma(\beta \log\frac{\pi</em>\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)})}<em>{梯度系数}\underbrace{[\nabla</em>\theta\log\pi_\theta(y_w|x)-\nabla_\theta\log\pi_\theta(y_l|x)]}_{梯度}$$</p>
+<p>$\nabla_\theta\mathcal{L}<em>{\mathrm{DPO}}&#x3D;\underbrace{\sigma(\beta \log\frac{\pi</em>\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)})}<em>{梯度系数}\underbrace{[\nabla</em>\theta\log\pi_\theta(y_w|x)-\nabla_\theta\log\pi_\theta(y_l|x)]}_{梯度}$</p>
 <h2 id="组相对策略优化-GRPO"><a href="#组相对策略优化-GRPO" class="headerlink" title="组相对策略优化 (GRPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2402.03300">组相对策略优化 (GRPO)</a></h2><ul>
 <li><p>问题：</p>
 <ul>
@@ -167,27 +167,29 @@
 </li>
 <li><p>思路：丢掉critic model，拿多个采样输出的平均奖励作为baseline。</p>
 <ul>
-<li><p>对于每个问题，通过旧策略模型$$\pi_{old}$$采样一组输出$${o_{1},o_{2},\cdots,o_{G}}$$</p>
+<li><p>对于每个问题，通过旧策略模型$\pi_{old}$采样一组输出${o_{1},o_{2},\cdots,o_{G}}$</p>
 </li>
-<li><p>对于每个输出，通过奖励模型得到打分$$\mathbf{r}&#x3D;{r_{1},r_{2},\cdots,r_{G}}$$</p>
+<li><p>对于每个输出，通过奖励模型得到打分$\mathbf{r}&#x3D;{r_{1},r_{2},\cdots,r_{G}}$</p>
 </li>
-<li><p>对于一组奖励，减去均值，除以标准差以标准化每一序列的打分，并将这些打分相等地分给序列中的所有token，$$\hat{A}<em>{i,t}&#x3D;\tilde{r}</em>{i}&#x3D;\frac{r_{i}-\mathrm{mean}(\mathbf{r})}{\mathrm{std}(\mathbf{r})}$$。</p>
+<li><p>对于一组奖励，减去均值，除以标准差以标准化每一序列的打分，并将这些打分相等地分给序列中的所有token，$\hat{A}<em>{i,t}&#x3D;\tilde{r}</em>{i}&#x3D;\frac{r_{i}-\mathrm{mean}(\mathbf{r})}{\mathrm{std}(\mathbf{r})}$。</p>
 </li>
 </ul>
 </li>
-<li><p>目标函数：<br>$$<br>\begin{aligned}</p>
+<li><p>目标函数：</p>
+</li>
+</ul>
+<p>$\begin{aligned}</p>
 <p>\mathcal{J}<em>{GRPO}(\theta) &amp; &#x3D;\mathbb{E}[q\sim P(Q),{o_i}</em>{i&#x3D;1}^G\sim\pi_{\theta_{old}}(O|q)] \</p>
 <p> &amp; \frac{1}{G}\sum_{i&#x3D;1}^G\frac{1}{|o_i|}\sum_{t&#x3D;1}^{|o_i|}\left{\min\left[\frac{\pi_\theta(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta_{\mathrm{old}}}(o_{i,t}|q,o_{i,&lt;t})}\hat{A}<em>{i,t},\mathrm{clip}\left(\frac{\pi</em>{\theta}(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta_{\mathrm{old}}}(o_{i,t}|q,o_{i,&lt;t})},1-\varepsilon,1+\varepsilon\right)\hat{A}<em>{i,t}\right]-\beta\mathrm{D}</em>{KL}\left[\pi_{\theta}||\pi_{ref}\right]\right}</p>
-<p>\end{aligned}<br>$$</p>
-</li>
-<li><p>估计KL散度：</p>
-</li>
+<p>\end{aligned}$</p>
+<ul>
+<li>估计KL散度：</li>
 </ul>
-<p>$$<br>\mathbb{D}<em>{KL}\left[\pi</em>{\theta}||\pi_{ref}\right]&#x3D;\frac{\pi_{ref}(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta}(o_{i,t}|q,o_{i,&lt;t})}-\log\frac{\pi_{ref}(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta}(o_{i,t}|q,o_{i,&lt;t})}-1,<br>$$</p>
+<p>$\mathbb{D}<em>{KL}\left[\pi</em>{\theta}||\pi_{ref}\right]&#x3D;\frac{\pi_{ref}(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta}(o_{i,t}|q,o_{i,&lt;t})}-\log\frac{\pi_{ref}(o_{i,t}|q,o_{i,&lt;t})}{\pi_{\theta}(o_{i,t}|q,o_{i,&lt;t})}-1,$</p>
 <ul>
 <li>策略梯度：</li>
 </ul>
-<p>$$<br>\begin{aligned}<br>\nabla_\theta\mathcal{J}<em>{GRPO}(\theta) &amp; &#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),{o_i}<em>{i&#x3D;1}^G\sim\pi</em>{\theta_{old}}(O|q)] \<br> &amp; \frac{1}{G}\sum_{i&#x3D;1}^G\frac{1}{|o_i|}\sum_{t&#x3D;1}^{|o_i|}\underbrace{\left[\frac{\pi_{\theta}(o_{i,t}|o_{i,&lt;t})}{\pi_{\theta_{old}}(o_{i,t}|o_{i,&lt;t})}\hat{A}<em>{i,t}+\beta\left(\frac{\pi</em>{ref}(o_{i,t}|o_{i,&lt;t})}{\pi_\theta(o_{i,t}|o_{i,&lt;t})}-1\right)\right]}<em>{梯度系数}\underbrace{\nabla</em>\theta\log\pi_\theta(o_{i,t}|q,o_{i,&lt;t}}_{策略梯度}).<br>\end{aligned}<br>$$</p>
+<p>$\begin{aligned}<br>\nabla_\theta\mathcal{J}<em>{GRPO}(\theta) &amp; &#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),{o_i}<em>{i&#x3D;1}^G\sim\pi</em>{\theta_{old}}(O|q)] \<br> &amp; \frac{1}{G}\sum_{i&#x3D;1}^G\frac{1}{|o_i|}\sum_{t&#x3D;1}^{|o_i|}\underbrace{\left[\frac{\pi_{\theta}(o_{i,t}|o_{i,&lt;t})}{\pi_{\theta_{old}}(o_{i,t}|o_{i,&lt;t})}\hat{A}<em>{i,t}+\beta\left(\frac{\pi</em>{ref}(o_{i,t}|o_{i,&lt;t})}{\pi_\theta(o_{i,t}|o_{i,&lt;t})}-1\right)\right]}<em>{梯度系数}\underbrace{\nabla</em>\theta\log\pi_\theta(o_{i,t}|q,o_{i,&lt;t}}_{策略梯度}).<br>\end{aligned}$</p>
 <h2 id="解耦剪辑与动态采样策略优化-DAPO"><a href="#解耦剪辑与动态采样策略优化-DAPO" class="headerlink" title="解耦剪辑与动态采样策略优化(DAPO)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.14476">解耦剪辑与动态采样策略优化(DAPO)</a></h2><ul>
 <li><p>问题：</p>
 <ul>
@@ -202,13 +204,13 @@
 <li><p>目标函数：</p>
 </li>
 </ul>
-<p>$$<br>\begin{aligned}<br>\mathcal{J}<em>{\mathrm{DAPO}}(\theta) &amp;<br>\begin{array}<br>{rcl}&#x3D; &amp; \mathbb{E}</em>{(q,a)\thicksim\mathcal{D},{o_i}<em>{i&#x3D;1}^G\thicksim\pi</em>{\theta_{\mathrm{old}}}(\cdot|q)}<br>\end{array} \<br> &amp; \left[\frac{1}{\sum_{i&#x3D;1}^G|o_i|}\sum_{i&#x3D;1}^G\sum_{t&#x3D;1}^{|o_i|}\min\left(r_{i,t}(\theta)\hat{A}<em>{i,t},\mathrm{~clip}{\left(r</em>{i,t}(\theta),1-\varepsilon_{\mathrm{low}},1+\varepsilon_{\mathrm{high}}\right)}\hat{A}_{i,t}\right)\right] \<br>\mathrm{s.t.}0&lt;\left|{o_i\mid\text{is equivalent}(a,o_i)}\right|&lt;G.<br>\end{aligned}<br>$$</p>
+<p>$\begin{aligned}<br>\mathcal{J}<em>{\mathrm{DAPO}}(\theta) &amp;<br>\begin{array}<br>{rcl}&#x3D; &amp; \mathbb{E}</em>{(q,a)\thicksim\mathcal{D},{o_i}<em>{i&#x3D;1}^G\thicksim\pi</em>{\theta_{\mathrm{old}}}(\cdot|q)}<br>\end{array} \<br> &amp; \left[\frac{1}{\sum_{i&#x3D;1}^G|o_i|}\sum_{i&#x3D;1}^G\sum_{t&#x3D;1}^{|o_i|}\min\left(r_{i,t}(\theta)\hat{A}<em>{i,t},\mathrm{~clip}{\left(r</em>{i,t}(\theta),1-\varepsilon_{\mathrm{low}},1+\varepsilon_{\mathrm{high}}\right)}\hat{A}_{i,t}\right)\right] \<br>\mathrm{s.t.}0&lt;\left|{o_i\mid\text{is equivalent}(a,o_i)}\right|&lt;G.<br>\end{aligned}$</p>
 <ul>
 <li><p>Token粒度的计算损失。</p>
 </li>
 <li><p>过滤掉准确性为0，1的样本不参与学习。</p>
 </li>
-<li><p>提高$$\epsilon_{high}$$的值（大多数0.2），让模型在信赖域中探索多一些，有助于生成更多样性的样本。</p>
+<li><p>提高$\epsilon_{high}$的值（大多数0.2），让模型在信赖域中探索多一些，有助于生成更多样性的样本。</p>
 </li>
 <li><p>消除KL，在训练long-CoT推理模型的过程中，模型分布可能会与初始模型显著偏离，因此这种限制是不必要的。</p>
 </li>
@@ -218,20 +220,20 @@
 <h2 id="监督微调-SFT"><a href="#监督微调-SFT" class="headerlink" title="监督微调(SFT)"></a>监督微调(SFT)</h2><h3 id="Vanilla-SFT"><a href="#Vanilla-SFT" class="headerlink" title="Vanilla SFT"></a>Vanilla SFT</h3><ul>
 <li>目标函数：</li>
 </ul>
-<p>$$<br>\mathcal{J}<em>{SFT}(\theta)&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\log\pi_\theta(o_t|q,o_{&lt;t})\right).<br>$$</p>
+<p>$\mathcal{J}<em>{SFT}(\theta)&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\log\pi_\theta(o_t|q,o_{&lt;t})\right).$</p>
 <ul>
 <li>梯度上升：</li>
 </ul>
-<p>$$<br>\nabla_\theta\mathcal{J}<em>{SFT}&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\nabla_\theta\log\pi_\theta(o_t|q,o_{&lt;t})}_{策略梯度}\right).<br>$$</p>
+<p>$\nabla_\theta\mathcal{J}<em>{SFT}&#x3D;\mathbb{E}[q,o\sim P</em>{sft}(Q,O)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\nabla_\theta\log\pi_\theta(o_t|q,o_{&lt;t})}_{策略梯度}\right).$</p>
 <h3 id="拒绝采样微调-RFT"><a href="#拒绝采样微调-RFT" class="headerlink" title="拒绝采样微调(RFT)"></a>拒绝采样微调(RFT)</h3><ul>
 <li>目标函数：</li>
 </ul>
-<p>$$<br>\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\mathbb{I}(o)\log\pi_\theta(o_t|q,o_{&lt;t})\right).<br>$$</p>
+<p>$\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(Q),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\mathbb{I}(o)\log\pi_\theta(o_t|q,o_{&lt;t})\right).$</p>
 <ul>
 <li>梯度上升：</li>
 </ul>
-<p>$$<br>\nabla_\theta\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(\mathbb{Q}),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\mathbb{I}(o)}<em>{梯度系数}\underbrace{\nabla</em>\theta\log\pi_\theta(o_t|q,o_{&lt;t})}_{策略梯度}\right).<br>$$</p>
-<p>$$<br>\mathrm{I}(o)&#x3D;<br>\begin{cases}<br>1 &amp; \text{the answer of o is correct} \<br>0 &amp; \text{the answer of o is incorrect} &amp; &amp;<br>\end{cases}<br>$$</p>
+<p>$\nabla_\theta\mathcal{J}<em>{RFT}(\theta)&#x3D;\mathbb{E}[q\sim P</em>{sft}(\mathbb{Q}),o\sim\pi_{sft}(O|q)]\left(\frac{1}{|o|}\sum_{t&#x3D;1}^{|o|}\underbrace{\mathbb{I}(o)}<em>{梯度系数}\underbrace{\nabla</em>\theta\log\pi_\theta(o_t|q,o_{&lt;t})}_{策略梯度}\right).$</p>
+<p>$\mathrm{I}(o)&#x3D;<br>\begin{cases}<br>1 &amp; \text{the answer of o is correct} \<br>0 &amp; \text{the answer of o is incorrect} &amp; &amp;<br>\end{cases}$</p>
 </div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">强化学习</a></li></ul></div><div class="post-nav"><a class="next" href="/2025/08/24/hello-world/">Hello World</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="关于"><img class="nofancybox" src="/img/logo_me.png"/></a><p>Measured gets improved.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2025/08/24/%E4%BB%8E%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">从策略梯度角度理解强化学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/08/24/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2025 <a href="/." rel="nofollow">Feng feng.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="复制成功！"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
   });
