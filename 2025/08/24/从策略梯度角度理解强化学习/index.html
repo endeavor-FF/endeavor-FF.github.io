@@ -17,18 +17,18 @@
 <ul>
 <li>目标函数：在当前策略$\pi_\theta$下，所有<strong>轨迹期望的总奖励</strong>。$R(\tau) &#x3D; \sum_{t&#x3D;0}^{T}R(s_t,a_t)$表示轨迹总奖励。</li>
 </ul>
-<p>  $J(\theta) &#x3D; \mathbb{E}<em>{\tau\sim\pi</em>{\theta}}[R(\tau)]$</p>
+<p>  $J(\theta)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>{\theta}}[R(\tau)]$</p>
 <ul>
 <li>展开成求和形式，并对策略参数$\theta$求导：</li>
 </ul>
-<p>  $J(\theta) &#x3D; \sum_{\tau}P(\tau;\theta)R(\tau)$</p>
+<p>  $J(\theta)&#x3D;\sum_{\tau}P(\tau;\theta)R(\tau)$</p>
 </li>
 </ul>
-<p>$\nabla_\theta J(\theta) &#x3D; \sum_\tau (\nabla_\theta P(\tau;\theta)R(\tau))$</p>
+<p>$\nabla_\theta J(\theta)&#x3D;\sum_\tau(\nabla_\theta P(\tau;\theta)R(\tau))$</p>
 <ul>
 <li>由$f’&#x3D;f\cdot(\log(f))’$得：</li>
 </ul>
-<p>$\nabla_\theta J(\theta) &#x3D; \sum_\tau P(\tau;\theta)\nabla_\theta\log (P(\tau;\theta))R(\tau)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[\nabla_\theta \log(P(\tau;\theta))R(\tau)]$</p>
+<p>$\nabla_\theta J(\theta)&#x3D;\sum_\tau P(\tau;\theta)\nabla_\theta\log (P(\tau;\theta))R(\tau)&#x3D;\mathbb{E}<em>{\tau\sim\pi</em>\theta}[\nabla_\theta \log(P(\tau;\theta))R(\tau)]$</p>
 <ul>
 <li>因$P(\tau;\theta)&#x3D;\rho\prod_{t&#x3D;0}^{T}\pi_\theta(a_t|s_t)$得<strong>策略梯度定理</strong>：</li>
 </ul>
